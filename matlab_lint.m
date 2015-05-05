@@ -55,7 +55,7 @@ if  is_func
     end
     comments = text_lines{comment_ind};
     comments(isspace(comments))='';
-    if ~strfind(comments,func_declare)
+    if isempty(strfind(comments,func_declare))
         text_lines(1+comment_ind:end+1) = text_lines(comment_ind:end);
         text_lines{comment_ind} = ['% ',text_lines{code_lines(1)}];
         problems{end+1} = 'improper doc string';
@@ -66,6 +66,7 @@ end
 if is_func
    [~,partial_fname] = fileparts(fname);
    func_declare = text_lines{code_lines(1)}; %function declaration
+   func_declare = strrep(func_declare,'function','');
    func_declare(isspace(func_declare))=''; %remove spaces
    %remove output arguments
    
