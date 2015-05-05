@@ -1,9 +1,25 @@
 # matlab_lint
 
 These files are intented to help lint matlab funcitons and scripts. They can be used with special-measure
+###get information on a single file
 
 ```
-%% here is an example
+%% here is an example used on a single file:
+file_info = matlab_lint('some_file.m');
+out = 
+
+           is_func: 1
+          problems: {'improper doc string'}
+        code_lines: 12
+     comment_lines: 2
+          new_text: 'function [out fileDir] = get_files(ffilter)
+% function [out f...'
+    builtin_linter: [2x1 struct]
+````
+###crawl a directory
+
+```
+%% here is an example crawling a directory
 
 ff = rDir(pwd); % get directory info
 [~,ext] = strtok({ff.name},'.'); % these are file extensions
@@ -20,14 +36,13 @@ for j = 1:length(ff)
 end
 
 bad_files = ff(~[ff.passed]);
+bad_files = 
+        name: 'dynamic_gui.m'
+        date: '28-Mar-2014 13:18:51'
+       bytes: 3193
+       isdir: 0
+     datenum: 7.3569e+05
+      passed: 0
+    problems: {'improper doc string'}
 ```
-
-will return a struct array with entires:
-
-**name**: 'my_file.m'  
-**date**: '01-Jan-2015'  
-**bytes**: 1024  
-**isdir**: 0  
-**datenum**: 73569e+05  
-**problems**: {'improper doc string'}  
 
