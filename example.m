@@ -7,9 +7,8 @@ ff = ff(strcmp(ext,'.m')); %only want the m-files
 for j = 1:length(ff)
    tmp = matlab_lint(ff(j).name);
    if ~isempty(fieldnames(tmp))
-       % its good if function and good doc, or neither
-        ff(j).passed = tmp.good_doc_string == tmp.is_func;
-   else
+        ff(j).passed = isempty(tmp.problems);
+   else % returns empty if can't open file
       ff(j).passed = 0; 
    end
 end

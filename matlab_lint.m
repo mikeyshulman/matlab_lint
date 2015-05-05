@@ -27,8 +27,7 @@ if length(text_lines)<=1
     return 
 end
 
-lens = cellfun(@length,text_lines);
-
+%lens = cellfun(@length,text_lines);
 code_lines = [];
 comment_lines = [];
 
@@ -43,9 +42,9 @@ for j = 1:length(text_lines)-1
     end
 end
 
+problems = {};
 % is it a function? if so, does it have the proper documentation
 is_func = ~isempty(strfind(text_lines{code_lines(1)},'function'));% its a function
-good_doc_string = 0;
 if  is_func
     func_declare = text_lines{code_lines(1)}; %function declaration
     func_declare(isspace(func_declare))='';
@@ -56,12 +55,31 @@ if  is_func
     end
     comments = text_lines{comment_ind};
     comments(isspace(comments))='';
-    if strfind(comments,func_declare)
-        good_doc_string = 1;
-    else
+    if ~strfind(comments,func_declare)
         text_lines(1+comment_ind:end+1) = text_lines(comment_ind:end);
         text_lines{comment_ind} = ['% ',text_lines{code_lines(1)}];
+        problems{end+1} = 'improper doc string';
     end
+end
+
+%now make sure function name matches file name
+if is_func
+   [~,partial_fname] = fileparts(fname);
+   func_declare = text_lines{code_lines(1)}; %function declaration
+   func_declare(isspace(func_declare))=''; %remove spaces
+   %remove output arguments
+   
+   if ~isempty(strfind(func_declare,'=')) % strip away before '=' 
+      func_declare =  func_declare(1+strfind(func_declare,'='):end); 
+   end   
+   %now remove input arguments
+   if ~isempty(strfind(func_declare,'(')) % strip away before '=' 
+      func_declare =  func_declare(1:strfind(func_declare,'(')-1); 
+   end
+   
+   if ~strcmp(partial_fname,func_declare)
+      problems{end+1} = 'function and file names do not match'; 
+   end
 end
 
 new_text = '';
@@ -71,7 +89,7 @@ end
 
 %pass back results
 results.is_func = is_func;
-results.good_doc_string = good_doc_string;
+results.problems = problems;
 results.code_lines = length(code_lines);
 results.comment_lines = length(comment_lines);
 results.new_text = new_text;
